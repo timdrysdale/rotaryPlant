@@ -89,7 +89,8 @@ float RotaryPlant::getPosition(void) { // position in units of fraction of a rev
 }
 
 float RotaryPlant::getVelocity(void) { // velocity in units of revolutions per second
-	return velocityValid ? fv0 : 0;
+  //do not move velocity calculation here - it must be done on every sample because it has a filter
+  return velocityValid ? fv0 : 0;
 }
 
 
