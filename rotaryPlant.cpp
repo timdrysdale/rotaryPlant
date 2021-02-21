@@ -52,7 +52,13 @@ void RotaryPlant::sample(long position, long time) {
   v1 = v0;
   fv1 = fv0;
   raw1 = raw0;
-  
+  samples++;
+  if (samples > 2) {
+	velocityValid = true;
+  } else {
+	v1 = 0;
+	fv1 = 0;
+  }
   raw0 = position;
   t0 = time;
 
@@ -67,12 +73,15 @@ void RotaryPlant::sample(long position, long time) {
   // https://arduino.stackexchange.com/questions/33572/arduino-countdown-without-using-delay/33577#33577
   // no need to compensate for the clock overflow, because the subtraction overflows too and you get
   // right answer.
+
+  if (t0 == t1) return; // resample at same time, so assume velocity same as before (+avoid nan from divide by zero!)
+  
   float dt = ((float)t0 - (float)t1) * convertTimeToSeconds;
 
-  v0 = dp / (dt * 1e-6);
+  v0 = dp / dt;
   
   //https://dsp.stackexchange.com/questions/60277/is-the-typical-implementation-of-low-pass-filter-in-c-code-actually-not-a-typica
-  fv0 =  ((1 - a) * fv1) + (a * (v0 + v1) / 2);
+  fv0 = ((1 - a) * fv1) + (a * (v0 + v1) / 2);
 }
 
 float RotaryPlant::getPosition(void) { // position in units of fraction of a revolution
@@ -80,7 +89,7 @@ float RotaryPlant::getPosition(void) { // position in units of fraction of a rev
 }
 
 float RotaryPlant::getVelocity(void) { // velocity in units of revolutions per second
-  return fv0;
+	return velocityValid ? fv0 : 0;
 }
 
 

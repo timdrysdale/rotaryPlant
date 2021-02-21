@@ -1,6 +1,18 @@
 # Prerequisites
 *.d
 
+# Emacs
+*~
+
+#Cmake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+#gTest
+runTests
+
 # Compiled Object files
 *.slo
 *.lo

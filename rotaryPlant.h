@@ -7,7 +7,7 @@
 //
 // ppr: pulses per revolution from your encoder
 // 
-// lpf: low pass filter coefficient. Set to 0 to
+// lpf: low pass filter coefficient. Set to 1 to
 //      have unfiltered velocites. A typical filter
 //      value is lpf = 0.1
 //
@@ -30,6 +30,8 @@ class RotaryPlant{
   float fv0, fv1; //filtered velocity
   float a; //filter coefficient
   float convertTimeToSeconds;
+  long samples = 0;
+  bool velocityValid = false;
   
   int _ppr; //pulses per revolution expected (depends on if pins are interrupts)
   int pMax, pMin;
