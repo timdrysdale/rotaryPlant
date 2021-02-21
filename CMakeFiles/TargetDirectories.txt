@@ -1,0 +1,3 @@
+/home/tim/04-SOURCES/rotaryPlant/CMakeFiles/rebuild_cache.dir
+/home/tim/04-SOURCES/rotaryPlant/CMakeFiles/edit_cache.dir
+/home/tim/04-SOURCES/rotaryPlant/CMakeFiles/runTests.dir

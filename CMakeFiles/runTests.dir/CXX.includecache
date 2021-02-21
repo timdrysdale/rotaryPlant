@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tim/04-SOURCES/rotaryPlant/rotaryPlant.cpp
+rotaryPlant.h
+/home/tim/04-SOURCES/rotaryPlant/rotaryPlant.h
+
+/home/tim/04-SOURCES/rotaryPlant/rotaryPlant.h
+
+/home/tim/04-SOURCES/rotaryPlant/rotaryPlant_unittest.cpp
+rotaryPlant.cpp
+/home/tim/04-SOURCES/rotaryPlant/rotaryPlant.cpp
+gtest/gtest.h
+-
+
