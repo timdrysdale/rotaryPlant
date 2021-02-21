@@ -79,7 +79,7 @@ TEST(RotaryPlantTest, positions) {
   long c0 = (ppr *  3134) + 148;
   long c1 = c0 + dc;
   
-  plant.initialise(t0,c0);
+  plant.initialise(c0,t0);
 
   float expected = 0.296; 
 
@@ -87,9 +87,9 @@ TEST(RotaryPlantTest, positions) {
   
   EXPECT_FLOAT_EQ(expected, actual);
  
-  plant.sample(t1,c1);
+  plant.sample(c1,t1);
 
-  expected = -0.464;
+  expected = 0.336;
   
   actual = plant.getPosition();
 
