@@ -1,7 +1,7 @@
 #include "rotaryPlant.h"
 
-RotaryPlant::RotaryPlant(int ppr, float lpf, float timeToSeconds) {
-  _ppr = ppr;
+RotaryPlant::RotaryPlant(int pulsesPerRevolution, float lpf, float timeToSeconds) {
+  ppr = pulsesPerRevolution;
 
   // low pass filter coefficient for velocity
   // typically
@@ -22,24 +22,29 @@ long RotaryPlant::wrap(long raw) {
 	return raw;
   }
 
-  long residue = raw % (_ppr);
+  long residue = raw % (ppr);
   
   if ( residue <= pMax && residue >= pMin) {
 	return residue;
   }
   
-  residue = residue % ( _ppr / 2);
+  residue = residue % ( ppr / 2);
   
   if (residue >= 0 ) return pMin + residue;
   return pMax + residue;
 }
 
-float RotaryPlant::fractionalPosition(long raw) {
-  return (float) wrap(raw) / (float)_ppr;
+float RotaryPlant::fractionalPosition(long p) {
+  return (float) wrap(p) / (float)ppr;
 }
 
+float RotaryPlant::fractionalDisplacement(long p) {
+  return (float) p / (float)ppr;
+}
+
+
 void RotaryPlant::initialise(long position, long time) {
-  p0 = fractionalPosition(position);
+  p0 = position;
   v0 = 0;
   t0 = time;
   fv0 = 0;
@@ -51,7 +56,6 @@ void RotaryPlant::sample(long position, long time) {
   t1 = t0;
   v1 = v0;
   fv1 = fv0;
-  raw1 = raw0;
   samples++;
   if (samples > 2) {
 	velocityValid = true;
@@ -59,16 +63,13 @@ void RotaryPlant::sample(long position, long time) {
 	v1 = 0;
 	fv1 = 0;
   }
-  raw0 = position;
+  p0 = position;
   t0 = time;
-
-  /******* position *******/
-  p0 = fractionalPosition(position);  // Posiiton unit is fraction of a revolution
 
   /******* velocity ******/
   
   // use raw position to avoid mistakes due to wrapping
-  float dp = ( (float)raw0 - (float)raw1 ) / (float)_ppr; // displacement unit is fraction of a revolution 
+  float dp = ( (float)p0 - (float)p1 ) / (float)ppr; // displacement unit is fraction of a revolution 
   
   // https://arduino.stackexchange.com/questions/33572/arduino-countdown-without-using-delay/33577#33577
   // no need to compensate for the clock overflow, because the subtraction overflows too and you get
@@ -85,7 +86,11 @@ void RotaryPlant::sample(long position, long time) {
 }
 
 float RotaryPlant::getPosition(void) { // position in units of fraction of a revolution
-  return p0; //expected range -0.5 <= pos < 0.5
+  return fractionalPosition(p0); //expected range -0.5 <= pos < 0.5
+}
+
+float RotaryPlant::getDisplacement(void) { // position in units of fraction of a revolution
+  return fractionalDisplacement(p0); //expected range -0.5 <= pos < 0.5
 }
 
 float RotaryPlant::getVelocity(void) { // velocity in units of revolutions per second
