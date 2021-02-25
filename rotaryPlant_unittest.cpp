@@ -7,9 +7,9 @@ TEST(RotaryPlantTest, wrap) {
 
   long ppr = 500;
   float lpf = 1;
-  float timeToSeconds = 1e-6;
+  float timestepSeconds = 0.02; //not actually used in this test
   
-  RotaryPlant plant = RotaryPlant(ppr, lpf, timeToSeconds);
+  RotaryPlant plant = RotaryPlant(ppr, lpf, timestepSeconds);
   
   EXPECT_EQ(0, plant.wrap(0));
   EXPECT_EQ(1, plant.wrap(1));
@@ -36,9 +36,9 @@ TEST(RotaryPlantTest, fractionalPosition) {
 
   long ppr = 500;
   float lpf = 1;
-  float timeToSeconds = 1e-6;
-  
-  RotaryPlant plant = RotaryPlant(ppr, lpf, timeToSeconds);
+  float timestepSeconds = 0.02; //not actually used in this test
+	
+  RotaryPlant plant = RotaryPlant(ppr, lpf, timestepSeconds);
   
   EXPECT_FLOAT_EQ(0, plant.fractionalPosition(0));
   EXPECT_FLOAT_EQ(0.002, plant.fractionalPosition(1));
@@ -68,18 +68,14 @@ TEST(RotaryPlantTest, positions) {
   long ppr = 500;
   float lpf = 1;
   float timeToSeconds = 1e-6;
-  
-  RotaryPlant plant = RotaryPlant(ppr, lpf, timeToSeconds);
-
-  long dt = 20000; //20ms
-  long t0 = 2435234525;
-  long t1 = t0 + dt;
+  float timestepSeconds = 0.02; //not actually used in this test
+  RotaryPlant plant = RotaryPlant(ppr, lpf, timestepSeconds);
 
   long dc = 20;
   long c0 = (ppr *  3134) + 148;
   long c1 = c0 + dc;
   
-  plant.initialise(c0,t0);
+  plant.initialise(c0);
 
   float expected = 0.296; 
 
@@ -87,7 +83,7 @@ TEST(RotaryPlantTest, positions) {
   
   EXPECT_FLOAT_EQ(expected, actual);
  
-  plant.sample(c1,t1);
+  plant.sample(c1);
 
   expected = 0.336;
   
@@ -97,9 +93,8 @@ TEST(RotaryPlantTest, positions) {
 
   dc = 34;
   long c2 = c1 + dc;
-  long t2 = t1 + dt;
   
-  plant.sample(c2,t2);
+  plant.sample(c2);
   
   expected = 0.404;
   
@@ -113,19 +108,15 @@ TEST(RotaryPlantTest, velocities) {
 
   long ppr = 500;
   float lpf = 1;
-  float timeToSeconds = 1e-6;
-  
-  RotaryPlant plant = RotaryPlant(ppr, lpf, timeToSeconds);
 
-  long dt = 20000; //20ms
-  long t0 = 2435234525;
-  long t1 = t0 + dt;
+  float timestepSeconds = 0.02;
+  RotaryPlant plant = RotaryPlant(ppr, lpf, timestepSeconds);
 
   long dc = 20;
   long c0 = (ppr *  3134) + 148;
   long c1 = c0 + dc;
   
-  plant.initialise(c0,t0);
+  plant.initialise(c0);
 
   float expected = 0; 
 
@@ -133,7 +124,7 @@ TEST(RotaryPlantTest, velocities) {
   
   EXPECT_FLOAT_EQ(expected, actual);
  
-  plant.sample(c1,t1);
+  plant.sample(c1);
 
   expected = 0; 
   
@@ -143,9 +134,8 @@ TEST(RotaryPlantTest, velocities) {
 
   dc = -34;
   long c2 = c1 + dc;
-  long t2 = t1 + dt;
   
-  plant.sample(c2,t2);
+  plant.sample(c2);
   
   actual = plant.getVelocity();
 
@@ -153,20 +143,18 @@ TEST(RotaryPlantTest, velocities) {
 
   dc = -34;
   long c3 = c2 + dc;
-  long t3 = t2 + dt;
 
-  plant.sample(c3,t3);
+  plant.sample(c3);
   
   actual = plant.getVelocity();
-  expected = ((float)dc / (float)ppr) / ((float)dt * timeToSeconds);
+  expected = ((float)dc / (float)ppr) / ((float)timestepSeconds);
   
   EXPECT_TRUE( abs(expected-actual)/abs(expected) < 2e-3) << abs(expected-actual)/abs(expected) ;  
 
   dc = -34;
   long c4 = c3 + dc;
-  long t4 = t3 + dt;
 
-  plant.sample(c4,t4);
+  plant.sample(c4);
   
   actual = plant.getVelocity();
 
@@ -178,19 +166,15 @@ TEST(RotaryPlantTest, filteredVelocities) {
 
   long ppr = 500;
   float lpf = 0.5;
-  float timeToSeconds = 1e-6;
+  float timestepSeconds = 0.02;
   
-  RotaryPlant plant = RotaryPlant(ppr, lpf, timeToSeconds);
-
-  long dt = 20000; //20ms
-  long t0 = 2435234525;
-  long t1 = t0 + dt;
+  RotaryPlant plant = RotaryPlant(ppr, lpf, timestepSeconds);
 
   long dc = 20;
   long c0 = (ppr *  3134) + 148;
   long c1 = c0 + dc;
   
-  plant.initialise(c0,t0);
+  plant.initialise(c0);
 
   float expected = 0; 
 
@@ -198,7 +182,7 @@ TEST(RotaryPlantTest, filteredVelocities) {
   
   EXPECT_FLOAT_EQ(expected, actual);
  
-  plant.sample(c1,t1);
+  plant.sample(c1);
 
   expected = 0; 
   
@@ -208,13 +192,12 @@ TEST(RotaryPlantTest, filteredVelocities) {
   
   dc = -34;
   long c = c1;
-  long t = t1;
+
   float lastActual = 0;
   
   for (int i =0; i<20; i++) {
 	c += dc;
-	t += dt;
-	plant.sample(c,t);
+	plant.sample(c);
 	lastActual = actual;
 	actual = plant.getVelocity();
 
@@ -224,7 +207,7 @@ TEST(RotaryPlantTest, filteredVelocities) {
   }
 
   // check converges to steady value
-  expected = ((float)dc / (float)ppr) / ((float)dt * timeToSeconds);
+  expected = ((float)dc / (float)ppr) / ((float)timestepSeconds);
   EXPECT_TRUE( abs(expected-actual)/abs(expected) < 2e-3) << actual ;  
 
 }

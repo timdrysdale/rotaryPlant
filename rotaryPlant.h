@@ -24,25 +24,24 @@
 class RotaryPlant{
 
   float a; //filter coefficient velocity
-  float convertTimeToSeconds;
   float fv0, fv1; //filtered velocity
   long p0, p1;
   int pMax, pMin;
   int ppr; //pulses per revolution expected (depends on if pins are interrupts)
   long samples = 0;
-  long t0, t1;
+  float Ts;
   float v0, v1; //raw velocity 
   bool velocityValid = false;
   
 
 
 public:
-  RotaryPlant(int pulsesPerRevolution, float lpf, float timeToSeconds);
+  RotaryPlant(int pulsesPerRevolution, float lpf, float timestepSeconds);
   long wrap(long raw); // internal function exposed for testing
   float fractionalPosition(long raw); // internal function exposed for testing
   float fractionalDisplacement(long raw); // internal function exposed for testing
-  void initialise(long position, long time);
-  void sample(long position, long time); // call this on an interrupt
+  void initialise(long position);
+  void sample(long position); // call this on an interrupt
   float getPosition(void); // call when last sampled position is required (bounded to +/-0.5 rev)
   float getDisplacement(void); // call when last sampled unwrapped position is required (unbounded)
   float getVelocity(void); // call when last sampled velocity is required

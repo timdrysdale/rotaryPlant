@@ -1,17 +1,14 @@
 #include "rotaryPlant.h"
 
-RotaryPlant::RotaryPlant(int pulsesPerRevolution, float lpf, float timeToSeconds) {
+RotaryPlant::RotaryPlant(int pulsesPerRevolution, float lpf, float timestepSeconds) {
   ppr = pulsesPerRevolution;
-
+  Ts = timestepSeconds;
   // low pass filter coefficient for velocity
   // typically
   if (lpf > 1) lpf = 1;
   if (lpf < 0) lpf = 0;
   a = lpf;
 
-  // if times are in micros, then set timeToSeconds to be 1e-6
-  convertTimeToSeconds = timeToSeconds;
-  
   pMax = (ppr / 2);
   pMin = (ppr / 2) * -1;
 }
@@ -43,17 +40,15 @@ float RotaryPlant::fractionalDisplacement(long p) {
 }
 
 
-void RotaryPlant::initialise(long position, long time) {
+void RotaryPlant::initialise(long position) {
   p0 = position;
   v0 = 0;
-  t0 = time;
   fv0 = 0;
 }
 
-void RotaryPlant::sample(long position, long time) {
+void RotaryPlant::sample(long position) {
 
   p1 = p0;
-  t1 = t0;
   v1 = v0;
   fv1 = fv0;
   samples++;
@@ -64,22 +59,14 @@ void RotaryPlant::sample(long position, long time) {
 	fv1 = 0;
   }
   p0 = position;
-  t0 = time;
 
   /******* velocity ******/
   
   // use raw position to avoid mistakes due to wrapping
-  float dp = ( (float)p0 - (float)p1 ) / (float)ppr; // displacement unit is fraction of a revolution 
-  
-  // https://arduino.stackexchange.com/questions/33572/arduino-countdown-without-using-delay/33577#33577
-  // no need to compensate for the clock overflow, because the subtraction overflows too and you get
-  // right answer.
+  long dplong  = p0 - p1;
+  float dp = (float)dplong / (float)ppr; // displacement unit is fraction of a revolution 
 
-  if (t0 == t1) return; // resample at same time, so assume velocity same as before (+avoid nan from divide by zero!)
-  
-  float dt = ((float)t0 - (float)t1) * convertTimeToSeconds;
-
-  v0 = dp / dt;
+  v0 = dp / Ts; //float division faster than longs (3byte div and one byte subtraction for floats  vs 4byte div for long) 
   
   //https://dsp.stackexchange.com/questions/60277/is-the-typical-implementation-of-low-pass-filter-in-c-code-actually-not-a-typica
   fv0 = ((1 - a) * fv1) + (a * (v0 + v1) / 2);
