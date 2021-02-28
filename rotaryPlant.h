@@ -45,5 +45,6 @@ public:
   float getPosition(void); // call when last sampled position is required (bounded to +/-0.5 rev)
   float getDisplacement(void); // call when last sampled unwrapped position is required (unbounded)
   float getVelocity(void); // call when last sampled velocity is required
+  void setLPF(float lpf);
 };
 

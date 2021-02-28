@@ -165,10 +165,12 @@ TEST(RotaryPlantTest, velocities) {
 TEST(RotaryPlantTest, filteredVelocities) {
 
   long ppr = 500;
-  float lpf = 0.5;
+  float lpf = 0.0;
   float timestepSeconds = 0.02;
   
   RotaryPlant plant = RotaryPlant(ppr, lpf, timestepSeconds);
+
+  plant.setLPF(0.5); //test setting method works....
 
   long dc = 20;
   long c0 = (ppr *  3134) + 148;

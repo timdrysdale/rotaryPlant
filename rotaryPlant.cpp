@@ -39,6 +39,10 @@ float RotaryPlant::fractionalDisplacement(long p) {
   return (float) p / (float)ppr;
 }
 
+void RotaryPlant::setLPF(float lpf) {
+  a = lpf;
+}
+
 
 void RotaryPlant::initialise(long position) {
   p0 = position;
